@@ -4,6 +4,8 @@ import RegisterForm from "./components/RegisterForm";
 import "./App.css";
 
 
+
+
 function App() {
   const [user, setUser] = useState(null);
   const [products, setProducts] = useState([]); // State untuk menyimpan produk
@@ -25,6 +27,8 @@ function App() {
     };
 
 
+
+
     const checkLoginStatus = async () => {
       try {
         const response = await fetch("http://localhost:8000/api/user", {
@@ -33,6 +37,8 @@ function App() {
             "Accept": "application/json",
           },
         });
+
+
 
 
         if (response.ok) {
@@ -49,8 +55,34 @@ function App() {
     };
 
 
+
+
     checkLoginStatus();
   }, []);
+
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/api/products");
+        if (response.ok) {
+          const data = await response.json();
+          setProducts(data);
+        }
+      } catch (err) {
+        console.error("Gagal memuat produk:", err);
+      }
+    };
+
+
+    if (user) {
+      fetchProducts();
+    } else {
+      setProducts([]);
+    }
+  }, [user]);
+
+
 
 
   const handleLogout = async () => {
@@ -69,6 +101,8 @@ function App() {
   };
 
 
+
+
   if (!user) {
     return showRegister ? (
       <RegisterForm onRegister={setUser} switchToLogin={() => setShowRegister(false)} />
@@ -78,19 +112,23 @@ function App() {
   }
 
 
+
+
   return (
     <>
       <h1>Selamat datang, {user.name} 👋</h1>
       <button onClick={handleLogout}>Logout</button>
 
 
+
+
       <h2>Daftar Produk</h2>
       <div className="product-list">
         {products.map((product) => (
           <div key={product.id} className="product-card">
-            {/* Tampilkan gambar dari storage backend */}
+            {/* Sesuaikan path gambar */}
             <img
-              src={`http://localhost:8000/storage/products/${product.image}`}
+              src={`http://localhost:8000/images/products/${product.image}`}
               alt={product.name}
               style={{ width: '200px', height: '200px', objectFit: 'cover' }}
             />
@@ -103,6 +141,8 @@ function App() {
     </>
   );
 }
+
+
 
 
 export default App;
