@@ -6,10 +6,25 @@ import "./App.css";
 
 function App() {
   const [user, setUser] = useState(null);
+  const [products, setProducts] = useState([]); // State untuk menyimpan produk
   const [showRegister, setShowRegister] = useState(false);
 
 
   useEffect(() => {
+    // Fungsi untuk mengambil data produk dari API
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/api/products");
+        if (response.ok) {
+          const data = await response.json();
+          setProducts(data);
+        }
+      } catch (err) {
+        console.error("Gagal memuat produk:", err);
+      }
+    };
+
+
     const checkLoginStatus = async () => {
       try {
         const response = await fetch("http://localhost:8000/api/user", {
@@ -20,11 +35,10 @@ function App() {
         });
 
 
-
-
         if (response.ok) {
           const data = await response.json();
           setUser(data);
+          fetchProducts(); // Panggil fetchProducts setelah login berhasil
         } else {
           setUser(null);
         }
@@ -48,8 +62,6 @@ function App() {
           "Accept": "application/json",
         },
       });
-
-
       setUser(null);
     } catch (err) {
       console.error("Gagal logout:", err);
@@ -69,10 +81,25 @@ function App() {
   return (
     <>
       <h1>Selamat datang, {user.name} 👋</h1>
-      <button onClick={handleLogout}>
-        Logout
-      </button>
-      {/* nanti lanjut tampilkan daftar produk */}
+      <button onClick={handleLogout}>Logout</button>
+
+
+      <h2>Daftar Produk</h2>
+      <div className="product-list">
+        {products.map((product) => (
+          <div key={product.id} className="product-card">
+            {/* Tampilkan gambar dari storage backend */}
+            <img
+              src={`http://localhost:8000/storage/products/${product.image}`}
+              alt={product.name}
+              style={{ width: '200px', height: '200px', objectFit: 'cover' }}
+            />
+            <h3>{product.name}</h3>
+            <p>Rp {product.price}</p>
+            <p>Stok: {product.stock}</p>
+          </div>
+        ))}
+      </div>
     </>
   );
 }
