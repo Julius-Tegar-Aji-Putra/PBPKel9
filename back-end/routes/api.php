@@ -5,6 +5,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProductController;
 
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -21,3 +22,6 @@ Route::get('/products', function () {
     $products = Product::all();
     return response()->json($products);
 });
+
+
+Route::post('/products', [ProductController::class, 'store']);
