@@ -1,6 +1,8 @@
 <?php
 
+
 return [
+
 
     /*
     |--------------------------------------------------------------------------
@@ -15,9 +17,12 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+
+    'paths' => ['api/*', 'login', 'register', 'logout', 'sanctum/csrf-cookie'],
+
 
     'allowed_methods' => ['*'],
+
 
     /*
      * Daftarkan alamat frontend Anda di sini.
@@ -28,18 +33,24 @@ return [
         'http://localhost:5173',
     ],
 
+
     /*
      * Matches Same Origin (https://en.wikipedia.org/wiki/Same-origin_policy) requests with allowed_origins.
      * If you don't want to share your internal APIs with external websites, set this to true.
      */
     'allowed_origins_patterns' => [],
 
+
     'allowed_headers' => ['*'],
+
 
     'exposed_headers' => [],
 
+
     'max_age' => 0,
 
+
     'supports_credentials' => true,
+
 
 ];
