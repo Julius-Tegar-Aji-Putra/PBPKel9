@@ -6,6 +6,7 @@ import {
   Navigate,
   Outlet,
 } from "react-router-dom";
+import { Toaster } from 'react-hot-toast';
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
@@ -15,14 +16,40 @@ import OrderPage from "./pages/OrderPage";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
+
+// 1. Membuat Context untuk Autentikasi
 const AuthContext = createContext(null);
 
+
+// Komponen Provider untuk membungkus aplikasi
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [cartCount, setCartCount] = useState(0);
+
+
+  // Fungsi untuk update cart count dari komponen lain
+  const updateCartCount = async () => {
+    if (!user) {
+      setCartCount(0);
+      return;
+    }
+    try {
+      const res = await fetch("http://localhost:8000/api/cart", { credentials: "include" });
+      if (res.ok) {
+        const data = await res.json();
+        setCartCount(data.items?.length || 0);
+      } else {
+        setCartCount(0);
+      }
+    } catch (err) {
+      setCartCount(0);
+    }
+  };
 
 
   useEffect(() => {
+    // Cek status login saat aplikasi pertama kali dimuat
     const checkLoginStatus = async () => {
       try {
         const response = await fetch("http://localhost:8000/api/user", {
@@ -33,23 +60,34 @@ const AuthProvider = ({ children }) => {
         if (response.ok) {
           const userData = await response.json();
           setUser(userData);
+          const cartRes = await fetch("http://localhost:8000/api/cart", { credentials: "include" });
+          if (cartRes.ok) {
+            const cartData = await cartRes.json();
+            setCartCount(cartData.items?.length || 0);
+          }
         } else {
           setUser(null);
+          setCartCount(0);
         }
       } catch (error) {
         console.error("Error checking login status:", error);
         setUser(null);
+        setCartCount(0);
       } finally {
         setLoading(false);
       }
     };
 
+
     checkLoginStatus();
   }, []);
 
+
   const login = (userData) => {
     setUser(userData);
+    updateCartCount();
   };
+
 
   const logout = async () => {
     try {
@@ -64,8 +102,10 @@ const AuthProvider = ({ children }) => {
         console.error("Logout failed:", error);
     } finally {
         setUser(null);
+        setCartCount(0);
     }
   };
+
 
   if (loading) {
     return (
@@ -79,17 +119,22 @@ const AuthProvider = ({ children }) => {
     );
   }
 
+
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, cartCount, updateCartCount }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
+
+// Hook kustom untuk mempermudah penggunaan context
 export const useAuth = () => {
   return useContext(AuthContext);
 };
 
+
+// Komponen untuk melindungi Route
 const ProtectedRoute = () => {
   const { user } = useAuth();
   return user ? <Outlet /> : <Navigate to="/login" replace />;
@@ -119,9 +164,22 @@ function App() {
           </main>
           <Footer />
         </div>
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            style: {
+              marginTop: '40px'
+            },
+          }}
+          containerStyle={{
+            top: 40,
+            right: 20,
+          }}
+        />
       </AuthProvider>
     </Router>
   );
 }
+
 
 export default App;

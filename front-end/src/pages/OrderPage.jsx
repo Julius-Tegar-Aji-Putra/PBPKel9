@@ -1,16 +1,23 @@
 import React, { useState, useEffect } from 'react';
 
+
+// Komponen Pembantu
 const LoadingSpinner = () => <div className="text-center py-10"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div></div>;
 const ErrorMessage = ({ message }) => <div className="text-center py-10 px-6 bg-red-100 text-red-700 rounded-lg"><p>{message}</p></div>;
+
 
 const OrderPage = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+
+  // Fungsi untuk mengambil riwayat pesanan
   const fetchOrders = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/orders');
+        const response = await fetch('http://localhost:8000/api/orders', {
+          credentials: 'include',
+        });
       if (!response.ok) {
         throw new Error('Gagal memuat riwayat pesanan. Silakan login terlebih dahulu.');
       }
@@ -105,5 +112,6 @@ const OrderPage = () => {
     </div>
   );
 };
+
 
 export default OrderPage;
