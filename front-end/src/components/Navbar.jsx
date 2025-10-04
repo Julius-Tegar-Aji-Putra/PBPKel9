@@ -3,10 +3,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../App";
 import cartIcon from "../assets/icons/cart.svg";
 import userIcon from "../assets/icons/user.svg";
+import WebLogo from '../assets/icon-web-shopping.svg';
 
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, cartCount } = useAuth();
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -18,31 +19,47 @@ const Navbar = () => {
   };
 
 
+  const logoLinkDestination = user && user.role === 'admin' ? '/admin' : '/';
+
+
   return (
     <nav className="bg-gray-800 p-4 sticky top-0 z-50">
       <div className="container mx-auto px-3 py-1">
         <div className="flex justify-between items-center">
           {/* Brand Name */}
-          <Link to="/" className="text-white text-2xl font-bold">
-            CampusMart
+          <Link to={logoLinkDestination} className="flex items-center">
+            <img src={WebLogo} alt="CampusMart Logo" className="h-10 w-auto mr-1 filter invert" />
+            <span className="text-2xl font-bold text-white">
+              CampusMart
+            </span>
           </Link>
 
 
           {/* Navigation Links */}
           <div className="flex items-center space-x-6">
-            <Link to="/orders" className="text-white hover:text-blue-200 transition">
-              Pesanan Saya
-            </Link>
+            {user && user.role !== 'admin' && (
+              <>
+                <Link to="/orders" className="text-white hover:text-blue-200 transition">
+                  Pesanan Saya
+                </Link>
 
 
-            <Link to="/cart" className="relative p-2 hover:bg-blue-200 rounded-full transition group">
-              <img
-                src={cartIcon}
-                alt="Cart"
-                className="h-6 w-6 filter brightness-0 invert group-hover:invert-0 group-hover:brightness-100"
-              />
-              {/* <span className="absolute top-0 right-0 block h-4 w-4 transform -translate-y-1/2 translate-x-1/2 rounded-full bg-red-500 text-white text-xs text-center">3</span> */}
-            </Link>
+                {/* Link Keranjang dengan Counter */}
+                <Link to="/cart" className="relative p-2 hover:bg-blue-200 rounded-full transition group">
+                  <img
+                    src={cartIcon}
+                    alt="Cart"
+                    className="h-6 w-6 filter brightness-0 invert group-hover:invert-0 group-hover:brightness-100"
+                  />
+                  {/* Tampilkan counter hanya jika user login dan ada item di keranjang */}
+                  {cartCount > 0 && (
+                    <span className="absolute top-0 right-0 block h-5 min-w-[1.25rem] px-1 rounded-full bg-red-500 text-white text-xs flex items-center justify-center transform translate-x-1/4 -translate-y-1/4">
+                      {cartCount}
+                    </span>
+                  )}
+                </Link>
+              </>
+            )}
 
 
             {user ? (
@@ -79,5 +96,4 @@ const Navbar = () => {
     </nav>
   );
 };
-
 export default Navbar;

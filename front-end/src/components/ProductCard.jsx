@@ -1,8 +1,11 @@
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import { useAuth } from '../App';
 
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
+  const { updateCartCount } = useAuth();
   const imageUrl = `http://localhost:8000/images/products/${product.image}`;
 
 
@@ -32,16 +35,23 @@ const ProductCard = ({ product }) => {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Gagal menambahkan produk ke keranjang.');
       }
-      alert(`${product.name} berhasil ditambahkan ke keranjang!`);
+     
+      // Replace alert with toast notification
+      toast.success(`${product.name} berhasil ditambahkan ke keranjang!`, {
+        position: 'top-right',
+        duration: 3000
+      });
+      updateCartCount();
 
 
     } catch (error) {
       console.error('Error adding to cart:', error);
-      alert(error.message);
+      toast.error(error.message);
     }
   };
 
 
+  // Rest of component remains the same
   return (
     <div className="border rounded-lg p-4 shadow-lg hover:shadow-xl transition-shadow duration-300">
       <img
